@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Data Extraction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ccc;
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+        nav {
+            background-color: #0056b3;
+            padding: 15px;
+            color: white;
+            text-align: center;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+        }
+        nav img.logo {
+            width: 50px;
+            height: auto;
+            margin-right: 20px;
+        }
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .content {
+            padding: 20px;
+            margin-top: 60px; /* Height of the navbar */
+        }
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #0056b3;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+        #responseContainer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        #imagePreviewContainer, #details {
+            flex: 1;
+            margin: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+        }
+        #imagePreview {
+            width: 100%;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        footer {
+            background-color: #0056b3;
+            padding: 15px;
+            color: white;
+            text-align: center;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+        /* Loader Styles */
+        .loader-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+            text-align: center;
+            position: relative;
+        }
+        .loader {
+            width: 0;
+            height: 30px;
+            background-color: #3498db;
+        }
+        .loader-text {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <img class="logo" src="static/logo.jpg" alt="Logo">
+        <a href="#home">Home</a>
+        <a href="#solutions">Solutions</a>
+        <a href="#integrations">Integrations</a>
+        <a href="#customers">Customers</a>
+        <a href="#about">About Us</a>
+        <a href="#resources">Resources</a>
+    </nav>
+
+    <div class="content">
+        <h2>Invoice Data Extraction</h2>
+        <form id="chatbotForm" enctype="multipart/form-data">
+            <label for="query">Ask ...?</label>
+            <input type="text" id="query" name="query" required>
+            <label for="image">Upload Image:</label>
+            <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg" required>
+            <button type="submit">Submit</button>
+        </form>
+
+        <!-- Loader Element -->
+        <div id="loaderContainer" class="loader-container">
+            <div class="loader-text" id="loaderText">0%</div>
+            <div class="loader" id="loader"></div>
+        </div>
+
+        <div id="responseContainer">
+            <div id="imagePreviewContainer">
+                <img id="imagePreview" alt="Image preview will appear here">
+            </div>
+            <div id="details">
+                <h3>Invoice Details</h3>
+                <div id="responseDetails"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; Invoice Data Extraction service provider & data management.
+            <br>
+            Samastipur Bihar(848101)
+        </p>
+    </footer>
+
+    <script>
+        // Function to display image preview
+        document.getElementById('image').addEventListener('change', function(event) {
+            let file = event.target.files[0];
+            if (file) {
+                displayImage(file);
+            }
+        });
+
+        // Function to display image preview
+        function displayImage(imageFile) {
+            let reader = new FileReader();
+            reader.onload = function(event) {
+                let imgElement = document.getElementById('imagePreview');
+                imgElement.src = event.target.result;
+            };
+            reader.readAsDataURL(imageFile);
+        }
+
+        // Simulate loader progress
+        function simulateLoader(interval) {
+            let loader = document.getElementById('loader');
+            let loaderText = document.getElementById('loaderText');
+            let width = 0;
+            interval = setInterval(function() {
+                if (width >= 100) {
+                    clearInterval(interval);
+                } else {
+                    width++;
+                    loader.style.width = width + '%';
+                    loaderText.innerHTML = width + '%';
+                }
+            }, 100); // Adjust the interval for speed of the loader
+        }
+
+        // Form submission handling
+        document.getElementById('chatbotForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Show the loader
+            document.getElementById('loaderContainer').style.display = 'block';
+            let loaderInterval;
+            simulateLoader(loaderInterval);
+
+            // Prepare form data
+            let formData = new FormData();
+            formData.append('query', document.getElementById('query').value);
+            formData.append('image', document.getElementById('image').files[0]);
+
+            // Send POST request to Flask API
+            fetch('/data_extraction', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide the loader
+                clearInterval(loaderInterval);
+                document.getElementById('loader').style.width = '100%';
+                document.getElementById('loaderText').innerHTML = '100%';
+                setTimeout(() => {
+                    document.getElementById('loaderContainer').style.display = 'none';
+                }, 500);
+
+                // Display response details in a table
+                let responseDetails = document.getElementById('responseDetails');
+                let tableHtml = '<table><tr><th>Field</th><th>Value</th></tr>';
+                Object.entries(data.Response).forEach(([key, value]) => {
+                    tableHtml += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                });
+                tableHtml += '</table>';
+                responseDetails.innerHTML = tableHtml;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Hide the loader
+                clearInterval(loaderInterval);
+                document.getElementById('loader').style.width = '100%';
+                document.getElementById('loaderText').innerHTML = '100%';
+                setTimeout(() => {
+                    document.getElementById('loaderContainer').style.display = 'none';
+                }, 500);
+
+                // Display error message
+                let responseDetails = document.getElementById('responseDetails');
+                responseDetails.innerHTML = `<p>Error: ${error.message}</p>`;
+            });
+        });
+    </script>
+</body>
+</html>
